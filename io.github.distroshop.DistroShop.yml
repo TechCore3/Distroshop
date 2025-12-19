@@ -1,0 +1,84 @@
+app-id: io.github.distroshop.DistroShop
+runtime: org.gnome.Platform
+runtime-version: '47'
+sdk: org.gnome.Sdk
+command: distro-explorer
+
+finish-args:
+  # Network access for downloading ISOs and icons
+  - --share=network
+  # X11 and Wayland display access
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  # Graphics acceleration
+  - --device=dri
+  # Access to the user's home for ISO downloads
+  - --filesystem=home:rw
+  # Required for notifications
+  - --talk-name=org.freedesktop.Notifications
+
+modules:
+  - name: distro-explorer
+    buildsystem: simple
+    build-commands:
+      # Install the python files
+      - install -d /app/bin
+      - install -d /app/share/distro-explorer
+      - cp -r src/* /app/share/distro-explorer/
+      
+      # Create an entry point script
+      - |
+        cat << 'EOF' > /app/bin/distro-explorer
+        #!/bin/sh
+        export PYTHONPATH=$PYTHONPATH:/app/share/distro-explorer
+        exec python3 /app/share/distro-explorer/main.py "$@"
+        EOF
+      - chmod +x /app/bin/distro-explorer
+      
+      # Metadata
+      - install -d /app/share/metainfo
+      - install -d /app/share/applications
+      - install -d /app/share/icons/hicolor/128x128/apps
+      - install -d /app/share/icons/hicolor/256x256/apps
+      - install -d /app/share/icons/hicolor/512x512/apps
+      - install -d /app/share/icons/hicolor/1024x1024/apps
+      
+      # Use PNG icon in multiple sizes
+      - cp assets/app_icon.png /app/share/icons/hicolor/128x128/apps/io.github.distroshop.DistroShop.png
+      - cp assets/app_icon.png /app/share/icons/hicolor/256x256/apps/io.github.distroshop.DistroShop.png
+      - cp assets/app_icon.png /app/share/icons/hicolor/512x512/apps/io.github.distroshop.DistroShop.png
+      - cp assets/app_icon.png /app/share/icons/hicolor/1024x1024/apps/io.github.distroshop.DistroShop.png
+      
+      # Appstream metadata
+      - |
+        cat << 'EOF' > /app/share/metainfo/io.github.distroshop.DistroShop.metainfo.xml
+        <?xml version="1.0" encoding="UTF-8"?>
+        <component type="desktop-application">
+          <id>io.github.distroshop.DistroShop</id>
+          <metadata_license>CC0-1.0</metadata_license>
+          <project_license>MIT</project_license>
+          <name>DistroShop</name>
+          <summary>Explore and download Linux distributions</summary>
+          <description>
+            <p>DistroShop allows you to browse various Linux distributions, see screenshots, and download ISOs easily.</p>
+          </description>
+          <launchable type="desktop-id">io.github.distroshop.DistroShop.desktop</launchable>
+        </component>
+        EOF
+        
+      # Desktop file
+      - |
+        cat << 'EOF' > /app/share/applications/io.github.distroshop.DistroShop.desktop
+        [Desktop Entry]
+        Name=DistroShop
+        Exec=distro-explorer
+        Icon=io.github.distroshop.DistroShop
+        Type=Application
+        Categories=System;
+        Terminal=false
+        EOF
+
+    sources:
+      - type: dir
+        path: .
