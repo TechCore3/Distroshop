@@ -1,6 +1,7 @@
 import subprocess
 import json
 import threading
+import os
 import gi
 from gi.repository import GLib, GObject
 
@@ -52,16 +53,24 @@ class UsbWriter(GObject.Object):
         try:
             GLib.idle_add(self.emit, 'write-output', f"Starting write to {target_device}...")
             
+            # Check if running inside Flatpak
+            is_flatpak = os.path.exists("/.flatpak-info")
+            
             # Construct command
-            # oflag=sync for safety
-            cmd = [
-                "pkexec", "dd", 
+            # bs=1024 as requested by user
+            dd_cmd = [
+                "dd", 
                 f"if={iso_path}", 
                 f"of={target_device}", 
-                "bs=4M", 
-                "status=progress", 
-                "oflag=sync"
+                "bs=1024", 
+                "status=progress"
             ]
+            
+            if is_flatpak:
+                # Use flatpak-spawn to run pkexec on host
+                cmd = ["flatpak-spawn", "--host", "pkexec"] + dd_cmd
+            else:
+                cmd = ["pkexec"] + dd_cmd
             
             process = subprocess.Popen(
                 cmd, 

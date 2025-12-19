@@ -18,7 +18,7 @@ class DownloadManager(GObject.Object):
         if not downloads:
             downloads = os.path.expanduser("~/Downloads")
         
-        self.download_dir = os.path.join(downloads, "DistroShop")
+        self.download_dir = os.path.join(downloads, "DistroExplorer")
         os.makedirs(self.download_dir, exist_ok=True)
         self._thread = None
         self._stop_event = threading.Event()

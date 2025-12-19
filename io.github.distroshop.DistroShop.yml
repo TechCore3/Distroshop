@@ -2,7 +2,7 @@ app-id: io.github.distroshop.DistroShop
 runtime: org.gnome.Platform
 runtime-version: '47'
 sdk: org.gnome.Sdk
-command: distro-explorer
+command: distroexplorer
 
 finish-args:
   # Network access for downloading ISOs and icons
@@ -17,24 +17,28 @@ finish-args:
   - --filesystem=home:rw
   # Required for notifications
   - --talk-name=org.freedesktop.Notifications
+  # Required to spawn pkexec on host
+  - --talk-name=org.freedesktop.Flatpak
+  # Required to see block devices
+  - --filesystem=/run/udev:ro
 
 modules:
-  - name: distro-explorer
+  - name: distroexplorer
     buildsystem: simple
     build-commands:
       # Install the python files
       - install -d /app/bin
-      - install -d /app/share/distro-explorer
-      - cp -r src/* /app/share/distro-explorer/
+      - install -d /app/share/distroexplorer
+      - cp -r . /app/share/distroexplorer/
       
       # Create an entry point script
       - |
-        cat << 'EOF' > /app/bin/distro-explorer
+        cat << 'EOF' > /app/bin/distroexplorer
         #!/bin/sh
-        export PYTHONPATH=$PYTHONPATH:/app/share/distro-explorer
-        exec python3 /app/share/distro-explorer/main.py "$@"
+        export PYTHONPATH=$PYTHONPATH:/app/share/distroexplorer
+        exec python3 /app/share/distroexplorer/main.py "$@"
         EOF
-      - chmod +x /app/bin/distro-explorer
+      - chmod +x /app/bin/distroexplorer
       
       # Metadata
       - install -d /app/share/metainfo
@@ -44,7 +48,7 @@ modules:
       - install -d /app/share/icons/hicolor/512x512/apps
       - install -d /app/share/icons/hicolor/1024x1024/apps
       
-      # Use PNG icon in multiple sizes
+      # Use our PNG icon (path is now relative to src/)
       - cp assets/app_icon.png /app/share/icons/hicolor/128x128/apps/io.github.distroshop.DistroShop.png
       - cp assets/app_icon.png /app/share/icons/hicolor/256x256/apps/io.github.distroshop.DistroShop.png
       - cp assets/app_icon.png /app/share/icons/hicolor/512x512/apps/io.github.distroshop.DistroShop.png
@@ -72,7 +76,7 @@ modules:
         cat << 'EOF' > /app/share/applications/io.github.distroshop.DistroShop.desktop
         [Desktop Entry]
         Name=DistroShop
-        Exec=distro-explorer
+        Exec=distroexplorer
         Icon=io.github.distroshop.DistroShop
         Type=Application
         Categories=System;

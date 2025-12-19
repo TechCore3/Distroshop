@@ -23,7 +23,7 @@ class ImageLoader(GObject.Object):
         super().__init__()
         # Using GLib to get standard XDG cache directory
         cache_base = GLib.get_user_cache_dir()
-        self.cache_dir = os.path.join(cache_base, "distroshop", "assets_v2")
+        self.cache_dir = os.path.join(cache_base, "distroexplorer", "assets_v2")
         os.makedirs(self.cache_dir, exist_ok=True)
         self.memory_cache = {} # url -> texture
 

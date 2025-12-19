@@ -2,7 +2,7 @@
 
 **DistroShop** is a modern, beautiful Linux distribution explorer and downloader built with GTK4 and Libadwaita. It provides a seamless interface to browse, discover, and download various Linux distributions.
 
-![App Icon](assets/app_icon.png)
+![App Icon](src/assets/app_icon.png)
 
 ##  Features
 
